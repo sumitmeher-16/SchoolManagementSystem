@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Enrollments{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-person-check me-2"></i>Enrollments</span>
+        <a href="{% url 'academics:enroll_student' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-2"></i>Enroll Student
+        </a>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3 mb-4">
+            <div class="col-md-3">
+                <select name="class" class="form-select">
+                    <option value="">All Classes</option>
+                    {% for class in classes %}
+                    <option value="{{ class.id }}" {% if class_filter == class.id|stringformat:"s" %}selected{% endif %}>
+                        {{ class.name }}-{{ class.section }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="status" class="form-select">
+                    <option value="">All Status</option>
+                    <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+                    <option value="transferred" {% if status_filter == 'transferred' %}selected{% endif %}>Transferred</option>
+                    <option value="graduated" {% if status_filter == 'graduated' %}selected{% endif %}>Graduated</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-secondary">Filter</button>
+            </div>
+        </form>
+        
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Class</th>
+                        <th>Roll No</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for enrollment in enrollments %}
+                    <tr>
+                        <td>{{ enrollment.student.get_full_name }}</td>
+                        <td>{{ enrollment.class_enrolled.name }}-{{ enrollment.class_enrolled.section }}</td>
+                        <td>{{ enrollment.roll_number }}</td>
+                        <td><span class="badge bg-{{ enrollment.status|default:'secondary' }}">{{ enrollment.status }}</span></td>
+                        <td>{{ enrollment.enrollment_date }}</td>
+                        <td>
+                            <form method="post" action="{% url 'academics:update_enrollment_status' enrollment.pk %}" style="display:inline;">
+                                {% csrf_token %}
+                                <select name="status" class="form-select form-select-sm d-inline-block w-auto">
+                                    <option value="active" {% if enrollment.status == 'active' %}selected{% endif %}>Active</option>
+                                    <option value="transferred">Transferred</option>
+                                    <option value="graduated">Graduated</option>
+                                    <option value="suspended">Suspended</option>
+                                </select>
+                                <button type="submit" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-check"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">No enrollments found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

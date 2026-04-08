@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Mark Attendance{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <i class="bi bi-calendar-plus me-2"></i>Mark Attendance
+    </div>
+    <div class="card-body">
+        <form method="post" id="attendanceForm">
+            {% csrf_token %}
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <label class="form-label">Class</label>
+                    <select name="class_enrolled" id="classSelect" class="form-select" required>
+                        <option value="">Select Class</option>
+                        {% for class in classes %}
+                        <option value="{{ class.id }}">{{ class.name }}-{{ class.section }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Subject</label>
+                    <select name="subject" id="subjectSelect" class="form-select">
+                        <option value="">General (No Subject)</option>
+                        {% for subject in subjects %}
+                        <option value="{{ subject.id }}">{{ subject.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Date</label>
+                    <input type="date" name="date" class="form-control" value="{{ today }}" required>
+                </div>
+            </div>
+            
+            <div id="studentsContainer" class="mb-4" style="display:none;">
+                <h5>Students</h5>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th width="50"><input type="checkbox" id="selectAll"></th>
+                                <th>Roll No</th>
+                                <th>Name</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsList">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" id="submitBtn" style="display:none;">
+                <i class="bi bi-check-lg me-2"></i>Save Attendance
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const classSelect = document.getElementById('classSelect');
+    const studentsContainer = document.getElementById('studentsContainer');
+    const studentsList = document.getElementById('studentsList');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    classSelect.addEventListener('change', function() {
+        const classId = this.value;
+        if (classId) {
+            fetch(`/academics/api/class-students/${classId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    studentsList.innerHTML = '';
+                    data.students.forEach(student => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>
+                                <input type="checkbox" name="attendance" value="${student.id}" class="student-checkbox" checked>
+                            </td>
+                            <td>${student.roll_number}</td>
+                            <td>${student.name}</td>
+                            <td><span class="badge bg-success">Present</span></td>
+                        `;
+                        studentsList.appendChild(row);
+                    });
+                    studentsContainer.style.display = 'block';
+                    submitBtn.style.display = 'block';
+                });
+        } else {
+            studentsContainer.style.display = 'none';
+            submitBtn.style.display = 'none';
+        }
+    });
+    
+    document.getElementById('selectAll').addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('.student-checkbox');
+        checkboxes.forEach(cb => cb.checked = this.checked);
+    });
+</script>
+{% endblock %}

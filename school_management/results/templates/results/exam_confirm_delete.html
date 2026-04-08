@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Delete Exam{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-danger text-white">
+        <i class="bi bi-exclamation-triangle me-2"></i>Confirm Delete
+    </div>
+    <div class="card-body">
+        <p>Are you sure you want to delete exam <strong>{{ exam.name }}</strong>?</p>
+        <p class="text-muted">This action cannot be undone.</p>
+        
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">
+                <i class="bi bi-trash me-2"></i>Delete
+            </button>
+            <a href="{% url 'results:exam_list' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

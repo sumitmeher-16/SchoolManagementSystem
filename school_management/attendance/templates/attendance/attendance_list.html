@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Attendance{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-calendar-check me-2"></i>Attendance Records</span>
+        <div>
+            <a href="{% url 'attendance:mark_attendance' %}" class="btn btn-primary">
+                <i class="bi bi-plus-lg me-2"></i>Mark Attendance
+            </a>
+            <a href="{% url 'attendance:attendance_report' %}" class="btn btn-success">
+                <i class="bi bi-file-earmark-text me-2"></i>Report
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3 mb-4">
+            <div class="col-md-3">
+                <select name="class" class="form-select">
+                    <option value="">All Classes</option>
+                    {% for class in classes %}
+                    <option value="{{ class.id }}" {% if class_filter == class.id|stringformat:"s" %}selected{% endif %}>
+                        {{ class.name }}-{{ class.section }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <input type="date" name="date" class="form-control" value="{{ date_filter|default:today }}">
+            </div>
+            <div class="col-md-2">
+                <select name="status" class="form-select">
+                    <option value="">All</option>
+                    <option value="present" {% if status_filter == 'present' %}selected{% endif %}>Present</option>
+                    <option value="absent" {% if status_filter == 'absent' %}selected{% endif %}>Absent</option>
+                    <option value="late" {% if status_filter == 'late' %}selected{% endif %}>Late</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-secondary">Filter</button>
+            </div>
+        </form>
+        
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Student</th>
+                        <th>Class</th>
+                        <th>Subject</th>
+                        <th>Status</th>
+                        <th>Marked By</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in attendance_records %}
+                    <tr>
+                        <td>{{ record.date }}</td>
+                        <td>{{ record.student.get_full_name }}</td>
+                        <td>{{ record.class_enrolled.name }}-{{ record.class_enrolled.section }}</td>
+                        <td>{{ record.subject.name|default:"-" }}</td>
+                        <td>
+                            {% if record.status == 'present' %}
+                            <span class="badge bg-success">Present</span>
+                            {% elif record.status == 'absent' %}
+                            <span class="badge bg-danger">Absent</span>
+                            {% elif record.status == 'late' %}
+                            <span class="badge bg-warning">Late</span>
+                            {% else %}
+                            <span class="badge bg-info">{{ record.status|capfirst }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ record.marked_by.get_full_name|default:"-" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">No attendance records found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

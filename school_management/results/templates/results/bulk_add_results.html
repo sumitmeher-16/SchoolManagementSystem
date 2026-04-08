@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Bulk Add Results - {{ exam.name }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <i class="bi bi-file-plus me-2"></i>Bulk Add Results - {{ exam.name }}
+    </div>
+    <div class="card-body">
+        <div class="alert alert-info mb-4">
+            <strong>Exam Details:</strong>
+            Class: {{ exam.class_enrolled.name }}-{{ exam.class_enrolled.section }} |
+            Subject: {{ exam.subject.name }} |
+            Total Marks: {{ exam.total_marks }}
+        </div>
+        
+        <form method="post" id="bulkResultsForm">
+            {% csrf_token %}
+            <input type="hidden" name="marks_data" id="marksData">
+            
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Roll No</th>
+                            <th>Student Name</th>
+                            <th>Marks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for enrollment in enrollments %}
+                        <tr>
+                            <td>{{ enrollment.roll_number }}</td>
+                            <td>{{ enrollment.student.get_full_name }}</td>
+                            <td>
+                                <input type="number" class="form-control marks-input" 
+                                       data-student-id="{{ enrollment.student.id }}"
+                                       value="{{ results|get_item:enrollment.student.id|default:'' }}"
+                                       min="0" max="{{ exam.total_marks }}">
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-lg me-2"></i>Save All Results
+            </button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('bulkResultsForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const marksData = {};
+        document.querySelectorAll('.marks-input').forEach(input => {
+            if (input.value) {
+                marksData[input.dataset.studentId] = input.value;
+            }
+        });
+        
+        document.getElementById('marksData').value = JSON.stringify(marksData);
+        this.submit();
+    });
+</script>
+{% endblock %}

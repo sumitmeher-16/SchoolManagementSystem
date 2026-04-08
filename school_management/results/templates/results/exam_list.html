@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Exams{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-file-earmark-text me-2"></i>Exams</span>
+        <a href="{% url 'results:exam_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-2"></i>Create Exam
+        </a>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3 mb-4">
+            <div class="col-md-3">
+                <select name="class" class="form-select">
+                    <option value="">All Classes</option>
+                    {% for class in classes %}
+                    <option value="{{ class.id }}" {% if class_filter == class.id|stringformat:"s" %}selected{% endif %}>
+                        {{ class.name }}-{{ class.section }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="type" class="form-select">
+                    <option value="">All Types</option>
+                    <option value="weekly" {% if exam_type == 'weekly' %}selected{% endif %}>Weekly</option>
+                    <option value="monthly" {% if exam_type == 'monthly' %}selected{% endif %}>Monthly</option>
+                    <option value="term" {% if exam_type == 'term' %}selected{% endif %}>Term</option>
+                    <option value="final" {% if exam_type == 'final' %}selected{% endif %}>Final</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-secondary">Filter</button>
+            </div>
+        </form>
+        
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Class</th>
+                        <th>Subject</th>
+                        <th>Date</th>
+                        <th>Marks</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for exam in exams %}
+                    <tr>
+                        <td>{{ exam.name }}</td>
+                        <td><span class="badge bg-primary">{{ exam.get_exam_type_display }}</span></td>
+                        <td>{{ exam.class_enrolled.name }}-{{ exam.class_enrolled.section }}</td>
+                        <td>{{ exam.subject.name }}</td>
+                        <td>{{ exam.date }}</td>
+                        <td>{{ exam.total_marks }}</td>
+                        <td>
+                            <a href="{% url 'results:bulk_add_results' exam.pk %}" class="btn btn-sm btn-success">
+                                <i class="bi bi-file-plus"></i> Add Results
+                            </a>
+                            <a href="{% url 'results:exam_update' exam.pk %}" class="btn btn-sm btn-warning">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'results:exam_delete' exam.pk %}" class="btn btn-sm btn-danger">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">No exams found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Result Card - {{ student.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-file-earmark-text me-2"></i>Results - {{ student.get_full_name }}</span>
+        <a href="{% url 'results:generate_report_card' student.pk %}" class="btn btn-primary">
+            <i class="bi bi-file-pdf me-2"></i>Download PDF
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Exam</th>
+                        <th>Subject</th>
+                        <th>Date</th>
+                        <th>Marks</th>
+                        <th>Percentage</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in results %}
+                    <tr>
+                        <td>{{ result.exam.name }}</td>
+                        <td>{{ result.exam.subject.name }}</td>
+                        <td>{{ result.exam.date }}</td>
+                        <td>{{ result.marks_obtained }}/{{ result.exam.total_marks }}</td>
+                        <td>{{ result.percentage }}%</td>
+                        <td>
+                            {% if result.status == 'Pass' %}
+                            <span class="badge bg-success">Pass</span>
+                            {% else %}
+                            <span class="badge bg-danger">Fail</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">No results available</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

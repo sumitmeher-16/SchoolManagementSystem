@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Fee Payments{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-wallet2 me-2"></i>Fee Payments</span>
+        <div>
+            <a href="{% url 'fees:collect_fee' %}" class="btn btn-primary">
+                <i class="bi bi-plus-lg me-2"></i>Collect Fee
+            </a>
+            <a href="{% url 'fees:fee_report' %}" class="btn btn-success">
+                <i class="bi bi-file-earmark-text me-2"></i>Report
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="alert alert-info mb-0">
+                    <strong>Total Collected:</strong> ${{ total_collected|floatformat:2 }}
+                </div>
+            </div>
+        </div>
+        
+        <form method="get" class="row g-3 mb-4">
+            <div class="col-md-3">
+                <select name="class" class="form-select">
+                    <option value="">All Classes</option>
+                    {% for class in classes %}
+                    <option value="{{ class.id }}" {% if class_filter == class.id|stringformat:"s" %}selected{% endif %}>
+                        {{ class.name }}-{{ class.section }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="status" class="form-select">
+                    <option value="">All Status</option>
+                    <option value="paid" {% if status_filter == 'paid' %}selected{% endif %}>Paid</option>
+                    <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="overdue" {% if status_filter == 'overdue' %}selected{% endif %}>Overdue</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-secondary">Filter</button>
+            </div>
+        </form>
+        
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Student</th>
+                        <th>Fee Type</th>
+                        <th>Class</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in payments %}
+                    <tr>
+                        <td>{{ payment.id }}</td>
+                        <td>{{ payment.student.get_full_name }}</td>
+                        <td>{{ payment.fee_structure.fee_category.name }}</td>
+                        <td>{{ payment.fee_structure.class_enrolled.name }}-{{ payment.fee_structure.class_enrolled.section }}</td>
+                        <td>${{ payment.amount }}</td>
+                        <td>
+                            {% if payment.status == 'paid' %}
+                            <span class="badge bg-success">Paid</span>
+                            {% elif payment.status == 'pending' %}
+                            <span class="badge bg-warning">Pending</span>
+                            {% elif payment.status == 'overdue' %}
+                            <span class="badge bg-danger">Overdue</span>
+                            {% else %}
+                            <span class="badge bg-info">Waived</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ payment.payment_date|default:"-" }}</td>
+                        <td>
+                            {% if payment.status == 'paid' %}
+                            <a href="{% url 'fees:generate_fee_invoice' payment.pk %}" class="btn btn-sm btn-primary">
+                                <i class="bi bi-file-pdf"></i>
+                            </a>
+                            {% endif %}
+                            <form method="post" action="{% url 'fees:update_payment_status' payment.pk %}" style="display:inline;">
+                                {% csrf_token %}
+                                <select name="status" class="form-select form-select-sm d-inline-block w-auto">
+                                    <option value="paid" {% if payment.status == 'paid' %}selected{% endif %}>Paid</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="overdue">Overdue</option>
+                                </select>
+                                <button type="submit" class="btn btn-sm btn-success">
+                                    <i class="bi bi-check"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted">No payments found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

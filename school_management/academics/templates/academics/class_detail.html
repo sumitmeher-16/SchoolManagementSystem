@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block page_title %}{{ class_obj.name }}-{{ class_obj.section }} Details{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="{% url 'academics:class_list' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back to List
+        </a>
+        <a href="{% url 'academics:enroll_student' %}?class={{ class_obj.pk }}" class="btn btn-primary">
+            <i class="bi bi-person-plus me-2"></i>Enroll Student
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-value">{{ enrollments.count }}</div>
+                    <div class="stat-label">Enrolled Students</div>
+                </div>
+                <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                    <i class="bi bi-people"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-value">{{ assignments.count }}</div>
+                    <div class="stat-label">Teachers</div>
+                </div>
+                <div class="stat-icon bg-success bg-opacity-10 text-success">
+                    <i class="bi bi-person-badge"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-people me-2"></i>Enrolled Students
+            </div>
+            <div class="card-body">
+                {% if enrollments %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Roll No</th>
+                            <th>Name</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for enrollment in enrollments %}
+                        <tr>
+                            <td>{{ enrollment.roll_number }}</td>
+                            <td>{{ enrollment.student.get_full_name }}</td>
+                            <td><span class="badge bg-success">{{ enrollment.status }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="text-muted mb-0">No students enrolled</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-person-badge me-2"></i>Teachers & Subjects
+            </div>
+            <div class="card-body">
+                {% if assignments %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Teacher</th>
+                            <th>Subject</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for assignment in assignments %}
+                        <tr>
+                            <td>{{ assignment.teacher.get_full_name }}</td>
+                            <td>{{ assignment.subject.name }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="text-muted mb-0">No teacher assignments</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

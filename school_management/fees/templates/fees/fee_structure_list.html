@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Fee Structures{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-file-earmark-break me-2"></i>Fee Structures</span>
+        <a href="{% url 'fees:fee_structure_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-2"></i>Add Structure
+        </a>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3 mb-4">
+            <div class="col-md-4">
+                <select name="class" class="form-select">
+                    <option value="">All Classes</option>
+                    {% for class in classes %}
+                    <option value="{{ class.id }}" {% if class_filter == class.id|stringformat:"s" %}selected{% endif %}>
+                        {{ class.name }}-{{ class.section }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-secondary">Filter</button>
+            </div>
+        </form>
+        
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Class</th>
+                        <th>Amount</th>
+                        <th>Duration</th>
+                        <th>Academic Year</th>
+                        <th>Due Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for structure in structures %}
+                    <tr>
+                        <td>{{ structure.fee_category.name }}</td>
+                        <td>{{ structure.class_enrolled.name }}-{{ structure.class_enrolled.section }}</td>
+                        <td>${{ structure.amount }}</td>
+                        <td><span class="badge bg-secondary">{{ structure.get_duration_display }}</span></td>
+                        <td>{{ structure.academic_year }}</td>
+                        <td>{{ structure.due_date }}</td>
+                        <td>
+                            <a href="{% url 'fees:fee_structure_update' structure.pk %}" class="btn btn-sm btn-warning">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">No structures found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

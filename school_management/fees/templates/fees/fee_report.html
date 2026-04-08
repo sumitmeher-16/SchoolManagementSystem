@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Fee Report{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <i class="bi bi-file-earmark-text me-2"></i>Fee Report
+    </div>
+    <div class="card-body">
+        <div class="alert alert-info mb-4">
+            <strong>Total Collection:</strong> ${{ total_amount|floatformat:2 }}
+        </div>
+        
+        <form method="get" class="row g-3 mb-4">
+            <div class="col-md-3">
+                <select name="class" class="form-select">
+                    <option value="">All Classes</option>
+                    {% for class in classes %}
+                    <option value="{{ class.id }}" {% if class_filter == class.id|stringformat:"s" %}selected{% endif %}>
+                        {{ class.name }}-{{ class.section }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary">Generate Report</button>
+            </div>
+        </form>
+        
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Fee Category</th>
+                        <th>Class</th>
+                        <th>Total Amount</th>
+                        <th>Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in summary %}
+                    <tr>
+                        <td>{{ record.fee_structure__fee_category__name }}</td>
+                        <td>{{ record.fee_structure__class_enrolled__name }}</td>
+                        <td>${{ record.total_amount|floatformat:2 }}</td>
+                        <td>{{ record.count }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">No data available</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

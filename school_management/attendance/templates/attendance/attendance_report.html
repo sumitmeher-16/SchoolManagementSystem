@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Attendance Report{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <i class="bi bi-file-earmark-text me-2"></i>Attendance Report
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3 mb-4">
+            <div class="col-md-3">
+                <select name="class" class="form-select">
+                    <option value="">All Classes</option>
+                    {% for class in classes %}
+                    <option value="{{ class.id }}" {% if class_filter == class.id|stringformat:"s" %}selected{% endif %}>
+                        {{ class.name }}-{{ class.section }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="month" class="form-select">
+                    {% for m in "123456789012"|make_list %}
+                    <option value="{{ forloop.counter }}" {% if month == forloop.counter|stringformat:"s" %}selected{% endif %}>
+                        {{ forloop.counter }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <input type="number" name="year" class="form-control" value="{{ year|default:2026 }}">
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary">Generate Report</button>
+            </div>
+        </form>
+        
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Class</th>
+                        <th>Present</th>
+                        <th>Absent</th>
+                        <th>Late</th>
+                        <th>Total</th>
+                        <th>Percentage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in summary %}
+                    <tr>
+                        <td>{{ record.student__first_name }} {{ record.student__last_name }}</td>
+                        <td>{{ record.class_enrolled__name }}</td>
+                        <td><span class="badge bg-success">{{ record.present }}</span></td>
+                        <td><span class="badge bg-danger">{{ record.absent }}</span></td>
+                        <td><span class="badge bg-warning">{{ record.late }}</span></td>
+                        <td>{{ record.total }}</td>
+                        <td>{{ record.present|add:record.late|divisibleby:record.total|default:"0" }}%</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">No data available</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

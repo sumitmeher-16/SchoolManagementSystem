@@ -29,6 +29,8 @@ db.sqlite3
 /staticfiles/
 *.log
 local_settings.py
+.env
+.env.local
 
 # IDE
 .vscode/

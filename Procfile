@@ -1,1 +1,1 @@
-web: gunicorn school_management.wsgi --timeout 120
+web: gunicorn school_management.school_management.wsgi --timeout 120

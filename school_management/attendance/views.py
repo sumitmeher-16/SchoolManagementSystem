@@ -70,7 +70,7 @@ def mark_attendance(request):
             )
         
         messages.success(request, 'Attendance marked successfully!')
-        return redirect('attendance_list')
+        return redirect('attendance:attendance_list')
     
     classes = Class.objects.all()
     if request.user.is_teacher:
@@ -114,7 +114,7 @@ def bulk_attendance(request):
                 )
             
             messages.success(request, 'Attendance marked successfully!')
-            return redirect('attendance_list')
+            return redirect('attendance:attendance_list')
     else:
         form = BulkAttendanceForm()
     
@@ -162,7 +162,7 @@ def attendance_report(request):
 
 def student_attendance_view(request):
     if request.user.is_admin_user:
-        return redirect('attendance_report')
+        return redirect('attendance:attendance_report')
     
     student = request.user
     attendance_records = Attendance.objects.filter(student=student).order_by('-date')[:100]

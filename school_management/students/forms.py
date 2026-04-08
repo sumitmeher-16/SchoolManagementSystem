@@ -12,6 +12,7 @@ class StudentForm(UserCreationForm):
     first_name = forms.CharField(max_length=30, required=True)
     last_name = forms.CharField(max_length=30, required=False)
     email = forms.EmailField(required=True)
+    photo = forms.ImageField(required=False, widget=forms.FileInput(attrs={'accept': 'image/*'}))
     
     class Meta:
         model = User
@@ -40,7 +41,10 @@ class StudentForm(UserCreationForm):
                 css_class='row'
             ),
             'address',
-            'photo',
+            Div(
+                Div('photo', css_class='col-md-12'),
+                css_class='row'
+            ),
             Div(
                 Div('password1', css_class='col-md-6'),
                 Div('password2', css_class='col-md-6'),
@@ -58,6 +62,52 @@ class StudentForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
+
+class StudentUpdateForm(forms.ModelForm):
+    first_name = forms.CharField(max_length=30, required=True)
+    last_name = forms.CharField(max_length=30, required=False)
+    email = forms.EmailField(required=True)
+    photo = forms.ImageField(required=False, widget=forms.FileInput(attrs={'accept': 'image/*'}))
+    username = forms.CharField(disabled=True, required=False)
+    
+    class Meta:
+        model = User
+        fields = ['username', 'first_name', 'last_name', 'email', 'phone',
+                  'address', 'date_of_birth', 'photo', 'is_active']
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_method = 'post'
+        self.helper.form_enctype = 'multipart/form-data'
+        self.helper.layout = Layout(
+            Div(
+                Div('username', css_class='col-md-6'),
+                Div('email', css_class='col-md-6'),
+                css_class='row'
+            ),
+            Div(
+                Div('first_name', css_class='col-md-6'),
+                Div('last_name', css_class='col-md-6'),
+                css_class='row'
+            ),
+            Div(
+                Div('phone', css_class='col-md-6'),
+                Div('date_of_birth', css_class='col-md-6'),
+                css_class='row'
+            ),
+            'address',
+            Div(
+                Div('photo', css_class='col-md-12'),
+                css_class='row'
+            ),
+            'is_active',
+            FormActions(
+                Submit('submit', 'Update Student', css_class='btn-primary px-4'),
+                HTML('<a class="btn btn-secondary ms-2" href="{% url \'students:student_list\' %}">Cancel</a>')
+            )
+        )
 
 
 class EnrollmentForm(forms.ModelForm):

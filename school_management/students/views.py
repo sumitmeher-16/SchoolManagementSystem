@@ -12,7 +12,7 @@ from academics.models import Class, Enrollment
 from attendance.models import Attendance
 from results.models import Result
 from fees.models import FeePayment
-from .forms import StudentForm
+from .forms import StudentForm, StudentUpdateForm, EnrollmentForm
 
 
 @login_required
@@ -62,7 +62,7 @@ def student_create(request):
         if form.is_valid():
             student = form.save()
             messages.success(request, f'Student {student.get_full_name()} created successfully!')
-            return redirect('student_list')
+            return redirect('students:student_list')
     else:
         form = StudentForm()
     return render(request, 'students/student_form.html', {'form': form, 'action': 'Create'})
@@ -73,13 +73,13 @@ def student_create(request):
 def student_update(request, pk):
     student = get_object_or_404(User, pk=pk, role='student')
     if request.method == 'POST':
-        form = StudentForm(request.POST, request.FILES, instance=student)
+        form = StudentUpdateForm(request.POST, request.FILES, instance=student)
         if form.is_valid():
             form.save()
             messages.success(request, f'Student {student.get_full_name()} updated successfully!')
-            return redirect('student_list')
+            return redirect('students:student_list')
     else:
-        form = StudentForm(instance=student)
+        form = StudentUpdateForm(instance=student)
     return render(request, 'students/student_form.html', {'form': form, 'action': 'Update', 'student': student})
 
 

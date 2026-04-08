@@ -5,6 +5,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.http import JsonResponse
+from django.db.models import Q
 
 from .models import User
 from .forms import UserForm, UserUpdateForm
@@ -43,7 +44,7 @@ def user_create(request):
         if form.is_valid():
             user = form.save()
             messages.success(request, f'User {user.get_full_name() or user.username} created successfully!')
-            return redirect('user_list')
+            return redirect('users:user_list')
     else:
         form = UserForm()
     return render(request, 'users/user_form.html', {'form': form, 'action': 'Create'})
@@ -58,7 +59,7 @@ def user_update(request, pk):
         if form.is_valid():
             form.save()
             messages.success(request, f'User {user.get_full_name() or user.username} updated successfully!')
-            return redirect('user_list')
+            return redirect('users:user_list')
     else:
         form = UserUpdateForm(instance=user)
     return render(request, 'users/user_form.html', {'form': form, 'action': 'Update', 'user_obj': user})

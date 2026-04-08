@@ -45,7 +45,7 @@ def exam_create(request):
             exam.created_by = request.user
             exam.save()
             messages.success(request, f'Exam {exam.name} created successfully!')
-            return redirect('exam_list')
+            return redirect('results:exam_list')
     else:
         form = ExamForm()
         if request.user.is_teacher:
@@ -66,7 +66,7 @@ def exam_update(request, pk):
         if form.is_valid():
             form.save()
             messages.success(request, f'Exam {exam.name} updated successfully!')
-            return redirect('exam_list')
+            return redirect('results:exam_list')
     else:
         form = ExamForm(instance=exam)
     return render(request, 'results/exam_form.html', {'form': form, 'action': 'Update', 'exam': exam})

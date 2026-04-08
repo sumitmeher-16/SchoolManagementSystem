@@ -29,7 +29,7 @@ def fee_category_create(request):
         if form.is_valid():
             form.save()
             messages.success(request, 'Fee category created successfully!')
-            return redirect('fee_category_list')
+            return redirect('fees:fee_category_list')
     else:
         form = FeeCategoryForm()
     return render(request, 'fees/fee_category_form.html', {'form': form, 'action': 'Create'})
@@ -44,7 +44,7 @@ def fee_category_update(request, pk):
         if form.is_valid():
             form.save()
             messages.success(request, 'Fee category updated successfully!')
-            return redirect('fee_category_list')
+            return redirect('fees:fee_category_list')
     else:
         form = FeeCategoryForm(instance=category)
     return render(request, 'fees/fee_category_form.html', {'form': form, 'action': 'Update'})
@@ -75,7 +75,7 @@ def fee_structure_create(request):
         if form.is_valid():
             form.save()
             messages.success(request, 'Fee structure created successfully!')
-            return redirect('fee_structure_list')
+            return redirect('fees:fee_structure_list')
     else:
         form = FeeStructureForm()
     return render(request, 'fees/fee_structure_form.html', {'form': form, 'action': 'Create'})
@@ -90,7 +90,7 @@ def fee_structure_update(request, pk):
         if form.is_valid():
             form.save()
             messages.success(request, 'Fee structure updated successfully!')
-            return redirect('fee_structure_list')
+            return redirect('fees:fee_structure_list')
     else:
         form = FeeStructureForm(instance=structure)
     return render(request, 'fees/fee_structure_form.html', {'form': form, 'action': 'Update'})
@@ -107,7 +107,7 @@ def collect_fee(request):
             payment.status = 'paid'
             payment.save()
             messages.success(request, f'Fee collected successfully! Transaction ID: {payment.transaction_id}')
-            return redirect('fee_payment_list')
+            return redirect('fees:fee_payment_list')
     else:
         form = FeePaymentForm()
     return render(request, 'fees/collect_fee.html', {'form': form})

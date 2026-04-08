@@ -456,9 +456,13 @@
                     <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
                     <div class="user-role">{{ user.get_role_display }}</div>
                 </div>
+                {% if user.photo %}
+                <img src="{{ user.photo.url }}" class="avatar" style="object-fit: cover; width: 45px; height: 45px; border-radius: 50%;">
+                {% else %}
                 <div class="avatar">
                     {{ user.get_full_name|default:user.username|slice:":2"|upper }}
                 </div>
+                {% endif %}
             </div>
         </div>
         

@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
@@ -39,7 +40,7 @@ def class_create(request):
         if form.is_valid():
             class_obj = form.save()
             messages.success(request, f'Class {class_obj.name}-{class_obj.section} created successfully!')
-            return redirect('class_list')
+            return redirect('academics:class_list')
     else:
         form = ClassForm()
     return render(request, 'academics/class_form.html', {'form': form, 'action': 'Create'})
@@ -54,7 +55,7 @@ def class_update(request, pk):
         if form.is_valid():
             form.save()
             messages.success(request, f'Class {class_obj.name}-{class_obj.section} updated successfully!')
-            return redirect('class_list')
+            return redirect('academics:class_list')
     else:
         form = ClassForm(instance=class_obj)
     return render(request, 'academics/class_form.html', {'form': form, 'action': 'Update', 'class_obj': class_obj})
@@ -113,7 +114,7 @@ def subject_create(request):
         if form.is_valid():
             subject = form.save()
             messages.success(request, f'Subject {subject.name} created successfully!')
-            return redirect('subject_list')
+            return redirect('academics:subject_list')
     else:
         form = SubjectForm()
     return render(request, 'academics/subject_form.html', {'form': form, 'action': 'Create'})
@@ -128,7 +129,7 @@ def subject_update(request, pk):
         if form.is_valid():
             form.save()
             messages.success(request, f'Subject {subject.name} updated successfully!')
-            return redirect('subject_list')
+            return redirect('academics:subject_list')
     else:
         form = SubjectForm(instance=subject)
     return render(request, 'academics/subject_form.html', {'form': form, 'action': 'Update', 'subject': subject})
@@ -149,30 +150,28 @@ def subject_delete(request, pk):
 @user_passes_test(lambda u: u.is_admin_user)
 def enroll_student(request):
     if request.method == 'POST':
-        student_id = request.POST.get('student')
-        class_id = request.POST.get('class_enrolled')
-        roll_number = request.POST.get('roll_number')
-        
-        enrollment, created = Enrollment.objects.get_or_create(
-            student_id=student_id,
-            class_enrolled_id=class_id,
-            defaults={'roll_number': roll_number}
-        )
-        
-        if created:
-            messages.success(request, 'Student enrolled successfully!')
-        else:
-            messages.warning(request, 'Student is already enrolled in this class.')
-        
-        return redirect('class_detail', pk=class_id)
+        form = EnrollmentForm(request.POST)
+        if form.is_valid():
+            student = form.cleaned_data['student']
+            class_obj = form.cleaned_data['class_enrolled']
+            roll_number = form.cleaned_data.get('roll_number')
+            
+            enrollment, created = Enrollment.objects.get_or_create(
+                student=student,
+                class_enrolled=class_obj,
+                defaults={'roll_number': roll_number}
+            )
+            
+            if created:
+                messages.success(request, 'Student enrolled successfully!')
+            else:
+                messages.warning(request, 'Student is already enrolled in this class.')
+            
+            return redirect('academics:class_detail', pk=class_obj.pk)
+    else:
+        form = EnrollmentForm()
     
-    students = User.objects.filter(role='student', is_active=True)
-    classes = Class.objects.all()
-    
-    return render(request, 'academics/enroll_student.html', {
-        'students': students,
-        'classes': classes,
-    })
+    return render(request, 'academics/enroll_student.html', {'form': form})
 
 
 @login_required
@@ -205,7 +204,7 @@ def update_enrollment_status(request, pk):
         enrollment.status = new_status
         enrollment.save()
         messages.success(request, f'Enrollment status updated to {new_status}')
-    return redirect('enrollment_list')
+    return redirect('academics:enrollment_list')
 
 
 def get_class_students(request, class_id):

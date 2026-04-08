@@ -47,6 +47,7 @@
             <table class="table table-hover">
                 <thead>
                     <tr>
+                        <th>Photo</th>
                         <th>ID</th>
                         <th>Name</th>
                         <th>Username</th>
@@ -59,6 +60,13 @@
                 <tbody>
                     {% for student in students %}
                     <tr>
+                        <td>
+                            {% if student.photo %}
+                            <img src="{{ student.photo.url }}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%;">
+                            {% else %}
+                            <div class="avatar" style="width: 40px; height: 40px; font-size: 14px;">{{ student.get_full_name|default:student.username|slice:":2"|upper }}</div>
+                            {% endif %}
+                        </td>
                         <td>{{ student.id }}</td>
                         <td>{{ student.get_full_name }}</td>
                         <td>{{ student.username }}</td>

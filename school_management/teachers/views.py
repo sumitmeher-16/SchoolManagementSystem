@@ -11,7 +11,7 @@ from users.models import User
 from academics.models import Class, TeacherSubjectAssignment, Subject
 from attendance.models import Attendance
 from results.models import Result, Exam
-from .forms import TeacherForm
+from .forms import TeacherForm, TeacherUpdateForm
 
 
 @login_required
@@ -43,7 +43,7 @@ def teacher_create(request):
         if form.is_valid():
             teacher = form.save()
             messages.success(request, f'Teacher {teacher.get_full_name()} created successfully!')
-            return redirect('teacher_list')
+            return redirect('teachers:teacher_list')
     else:
         form = TeacherForm()
     return render(request, 'teachers/teacher_form.html', {'form': form, 'action': 'Create'})
@@ -54,13 +54,13 @@ def teacher_create(request):
 def teacher_update(request, pk):
     teacher = get_object_or_404(User, pk=pk, role='teacher')
     if request.method == 'POST':
-        form = TeacherForm(request.POST, request.FILES, instance=teacher)
+        form = TeacherUpdateForm(request.POST, request.FILES, instance=teacher)
         if form.is_valid():
             form.save()
             messages.success(request, f'Teacher {teacher.get_full_name()} updated successfully!')
-            return redirect('teacher_list')
+            return redirect('teachers:teacher_list')
     else:
-        form = TeacherForm(instance=teacher)
+        form = TeacherUpdateForm(instance=teacher)
     return render(request, 'teachers/teacher_form.html', {'form': form, 'action': 'Update', 'teacher': teacher})
 
 
@@ -122,7 +122,7 @@ def teacher_assign_subject(request):
         else:
             messages.warning(request, 'This assignment already exists.')
         
-        return redirect('teacher_detail', pk=teacher_id)
+        return redirect('teachers:teacher_detail', pk=teacher_id)
     
     teachers = User.objects.filter(role='teacher', is_active=True)
     subjects = Subject.objects.all()
